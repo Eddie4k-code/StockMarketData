@@ -1,0 +1,81 @@
+from selenium import webdriver
+import time
+from selenium.webdriver.chrome.options import Options
+import tkinter as tk
+import requests
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+
+chrome_options = Options()                  #Creates a headless browser
+chrome_options.add_argument("--headless")
+
+PATH = "C:\Program Files (x86)\chromedriver.exe"
+
+driver = webdriver.Chrome(PATH, chrome_options=chrome_options)
+
+#Tkinter
+HEIGHT = 700
+WIDTH = 800
+root = tk.Tk()
+root.title('Stock Info')
+#Response Printed to the Label
+def response():
+    try:
+        price = driver.find_element_by_xpath('/html/body/div[1]/div/div/div[1]/div/div[2]/div/div/div[5]/div/div/div/div[3]/div[1]/div[1]/fin-streamer[1]')
+        vol = driver.find_element_by_xpath('/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/div/div[2]/div[1]/table/tbody/tr[7]/td[2]')
+        cap = driver.find_element_by_xpath('/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/div/div[2]/div[2]/table/tbody/tr[1]/td[2]')
+        return f'Current Price: {price.text}\nCurrent Volume: {vol.text}\nMarket Cap: {cap.text}'
+
+
+
+    except:
+        return 'Not a ticker'
+
+
+
+
+
+#Looks up the Ticker on Yahoo Finance based on the user input #Actuall Process
+def get_ticker(entry):
+    ticker = driver.get(f"https://finance.yahoo.com/quote/{entry}?p={entry}&.tsrc=fin-srch")
+    label['text'] = response()  #Connects the label to the response function the ['text] makes it so it fills the text of the label
+
+
+#GUI
+#Size of Program
+canvas = tk.Canvas(root, height=HEIGHT, width=WIDTH,)
+canvas.pack()
+
+
+
+
+#Frame
+frame = tk.Frame(root, bg='blue', bd=5)
+frame.place(relx=0.5, rely=0.1, relwidth=0.75, relheight=0.1, anchor='n')
+
+
+#Entry Bar
+entry = tk.Entry(frame, font=40, bg='white')
+entry.place(relwidth=0.65, relheight=1)
+
+#Button Select Ticker
+button = tk.Button(frame, text='Get Ticker', bg='gray', font=40, command=lambda: get_ticker(entry.get()))
+button.place(relx=0.7, relheight=1, relwidth=0.3)
+
+
+#Lower Frame
+lower_frame = tk.Frame(root, bg='gray', bd=5)
+lower_frame.place(relx=0.5, rely=0.25, relwidth=0.7, relheight=0.6, anchor='n')
+
+
+#Label
+
+label = tk.Label(lower_frame, font=40)
+label.place(relwidth=1, relheight=1)
+
+
+
+
+root.mainloop()
